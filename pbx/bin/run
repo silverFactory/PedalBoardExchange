@@ -1,0 +1,6 @@
+#Greets user
+#asks for location
+#asks for search params
+  =>uses them to call #Scraper.scrape_search to find available local matches
+  =>uses same params to call #Scraper.country_scrape to find matches across country
+  =>return values of country_scrape used by #price_comparison
