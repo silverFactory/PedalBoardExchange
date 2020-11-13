@@ -98,5 +98,33 @@ class Scraper
   #method to see if any posts have identical titles
   def duplicate_check?()
   end
+
+  #GC_name: .css(".productTitle")[0].text.strip
+  #link_to_product_page(needs concat with gc.com...): .css(".productTitle a")[0].attribute('href').text
+  #GC_price_new: .css(".topAlignedPrice").text
+  #manufacturer_description: .css(".description").text
+
+  def self.gc_scrape(pedal_name)
+    user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
+    formatted_pedal_name = search_format(pedal_name)
+    url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=i#{formatted_pedal_name}"
+    html = open(url, 'User-Agent' => user_agent)
+    doc = Nokogiri::HTML(html)
+    binding.pry
+  end
+  def self.gc_next_level
+    user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
+    url = "https://www.guitarcenter.com/Ibanez/TS9-Tube-Screamer-Effects-Pedal-1274115043047.gc?rNtt=ibanez%20tube%20screamer&index=1"
+    html = open(url, 'User-Agent' => user_agent)
+    doc = Nokogiri::HTML(html)
+    binding.pry
+  end
+  def self.search_format(pedal_name)
+    #break apart pedal_name, then concat with + between each word
+    name_pieces = pedal_name.split
+    name_pieces.join("+")
+  end
 end
-Scraper.full_scrape("tubescreamer")
+#Scraper.full_scrape("tubescreamer")
+#Scraper.gc_scrape("Ibanez tube screamer")
+Scraper.gc_next_level
