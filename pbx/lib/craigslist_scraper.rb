@@ -118,10 +118,10 @@ class Scraper
         #go thru p_t results and skip any that have used in title
         #if you can get a result using the post title, get that info
         #else try with user_input
-        p_t_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=i#{formatted_post_title}"
+        p_t_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_post_title}"
         p_t_html = open(p_t_url, 'User-Agent' => user_agent)
         p_t_doc = Nokogiri::HTML(p_t_html)
-        u_s_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=i#{formatted_user_search}"
+        u_s_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_user_search}"
         u_s_html = open(u_s_url, 'User-Agent' => user_agent)
         u_s_doc = Nokogiri::HTML(u_s_html)
         #binding.pry
@@ -137,23 +137,23 @@ class Scraper
             #   p[:gc_price] = Scraper.gc_price_parse(p_t_doc.css(".productPrice")[0].text)
             #   p[:gc_description] = info_array[1]
             # else #find one that aint used
-            #binding.pry
+          #  binding.pry
             if p_t_doc.css("#searchTips").length == 0
               if p_t_doc.css(".product-container").length > 0
                 p_t_doc.css(".product-container").each do |pedal|
-                #  binding.pry
+                  #binding.pry
                     if !Scraper.used?(pedal.css(".productTitle").text.strip) && p[:gc_name] == nil
                       p[:gc_name] = pedal.css(".productTitle").text.strip
                       p[:gc_price] = Scraper.gc_price_parse(pedal.css(".productPrice").text)
-                      #binding.pry
+                    #  binding.pry
                       info_array = Scraper.gc_next_level(pedal.css(".productTitle a").attribute('href').text)
                       p[:gc_description] = info_array[1]
                     end
                   end
                 else
-                  #binding.pry
+                #  binding.pry
                   p[:gc_name] = p_t_doc.css(".titleWrap").text.strip
-                  p[:gc_price] = p_t_doc.css(".topAlignedPrice").text.strip
+                  p[:gc_price] = p_t_doc.css(".topAlignedPrice").text.strip.split("\n")[0]
                   p[:gc_description] = p_t_doc.css(".description").text.strip
                end
              end
