@@ -22,5 +22,7 @@ pedal_results = Scraper.scrape_search(input)
 #for each pedal posting on CL, i want to scrape GC for the new price and description
 pedals_with_extras = Scraper.gc_scrape(pedal_results, input)
 Pedal.create_from_collection(pedals_with_extras)
-Pedal.all.each{|p| puts "#{p.name}: listed for#{p.seller_price}, new price: #{p.gc_price}, pedal description #{p.gc_description}"}
-#Scraper.country_scrape(input)
+Pedal.all.each_with_index{|p, i| puts "#{i+1}- #{p.name}: listed for #{p.seller_price}, new price:#{p.gc_price}"}
+puts "For the description of a pedal please enter corresponding number:"
+desc_choice = gets.chomp.to_i
+puts Pedal.all[desc_choice-1].gc_description

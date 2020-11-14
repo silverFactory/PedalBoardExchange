@@ -111,21 +111,18 @@ class Scraper
   #should take in a pedal hash, and add info to each pedal, THEN the hash goes thru creat_by_collection
   def self.gc_scrape(pedal_hash, user_input)
 
-    #binding.pry
     pedal_hash.each do |p|
-        # pedal = {}
         user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
         formatted_pedal_name = search_format(user_input)
         url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=i#{formatted_pedal_name}"
         html = open(url, 'User-Agent' => user_agent)
         doc = Nokogiri::HTML(html)
-        #binding.pry
         p[:gc_name] = doc.css(".productTitle")[0].text.strip
         info_array = Scraper.gc_next_level(doc.css(".productTitle a")[0].attribute('href').text)
-        p[:gc_price] = info_array[0]
+      #  p[:gc_price] = info_array[0]
+        #binding.pry
+        p[:gc_price] = Scraper.gc_price_parse(doc.css(".productPrice")[0].text)
         p[:gc_description] = info_array[1]
-        binding.pry
-        # pedals << pedal
     end
     pedal_hash
   end
@@ -136,10 +133,13 @@ class Scraper
     doc = Nokogiri::HTML(html)
     #return an array of :gc_price, gc_description
     info = []
-    info << doc.css(".topAlignedPrice").text
-    info << doc.css(".description").text
+    info << doc.css(".topAlignedPrice").text.strip
+    info << doc.css(".description").text.strip
     #binding.pry
     info
+  end
+  def self.gc_price_parse (price)
+    price.split("Your Price")[1]
   end
   def self.search_format(pedal_name)
     #break apart pedal_name, then concat with + between each word
