@@ -119,7 +119,6 @@ class Scraper
         #if you can get a result using the post title, get that info
         #else try with user_input
         p_t_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=i#{formatted_post_title}"
-              #  = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=Boss+OS2+Overdrive+Distortion+Pedal#pageName=search&Ntt=Boss%20OS2%20Overdrive%20Distortion%20Pedal&N=0&Nao=0&recsPerPage=30&&Ns=cD&postalCode=11231&radius=100&profileCountryCode=US&profileCurrencyCode=USD"
         p_t_html = open(p_t_url, 'User-Agent' => user_agent)
         p_t_doc = Nokogiri::HTML(p_t_html)
         u_s_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=i#{formatted_user_search}"
@@ -127,32 +126,40 @@ class Scraper
         u_s_doc = Nokogiri::HTML(u_s_html)
         #binding.pry
         #if the post_title gets gc results
-        if p_t_doc.css(".productTitle")[0] != nil
+      #  if p_t_doc.css(".productTitle")[0] != nil
             #if the first one is used? == false
-            if !Scraper.used?(p_t_doc.css(".productTitle")[0].text.strip)
-              p[:gc_name] = p_t_doc.css(".productTitle")[0].text.strip
-              info_array = Scraper.gc_next_level(p_t_doc.css(".productTitle a")[0].attribute('href').text)
-            #  p[:gc_price] = info_array[0]
-              #binding.pry
-              p[:gc_price] = Scraper.gc_price_parse(p_t_doc.css(".productPrice")[0].text)
-              p[:gc_description] = info_array[1]
-            else #find one that aint used
-              pedal = p_t_doc.css(".productTitle").detect do |pedal|
-                !Scraper.used?(pedal.text.strip)
-              end
-              binding.pry
-              p[:gc_name] = pedal.text.strip
-              p[:gc_price] = 
-            end
-        #elsif get data based on user_search
-        elsif u_s_doc.css(".productTitle")[0] != nil
-
-
-        end #post_title vs user_search
-      end #pedal_hash.each end
-    #end #method end
+          #  binding.pry
+            # if !Scraper.used?(p_t_doc.css(".productTitle")[0].text.strip)
+            #   p[:gc_name] = p_t_doc.css(".productTitle")[0].text.strip
+            #   info_array = Scraper.gc_next_level(p_t_doc.css(".productTitle a")[0].attribute('href').text)
+            # #  p[:gc_price] = info_array[0]
+            #   #binding.pry
+            #   p[:gc_price] = Scraper.gc_price_parse(p_t_doc.css(".productPrice")[0].text)
+            #   p[:gc_description] = info_array[1]
+            # else #find one that aint used
+            #binding.pry
+            if p_t_doc.css("#searchTips").length == 0
+              if p_t_doc.css(".product-container").length > 0
+                p_t_doc.css(".product-container").each do |pedal|
+                #  binding.pry
+                    if !Scraper.used?(pedal.css(".productTitle").text.strip) && p[:gc_name] == nil
+                      p[:gc_name] = pedal.css(".productTitle").text.strip
+                      p[:gc_price] = Scraper.gc_price_parse(pedal.css(".productPrice").text)
+                      #binding.pry
+                      info_array = Scraper.gc_next_level(pedal.css(".productTitle a").attribute('href').text)
+                      p[:gc_description] = info_array[1]
+                    end
+                  end
+                else
+                  #binding.pry
+                  p[:gc_name] = p_t_doc.css(".titleWrap").text.strip
+                  p[:gc_price] = p_t_doc.css(".topAlignedPrice").text.strip
+                  p[:gc_description] = p_t_doc.css(".description").text.strip
+               end
+             end
+      end
     pedal_hash
-  end #method end
+end #method end
   def self.gc_next_level(url_end)
     user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
     url = "https://www.guitarcenter.com#{url_end}"
