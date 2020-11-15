@@ -36,6 +36,10 @@ class Scraper
         pedal = {}
         pedal[:name] = r.css("h3").text.strip
         pedal[:seller_price] = r.css(".result-meta .result-price").text.strip
+        #link r.css("a").attribute("href").text
+        seller_page = Nokogiri::HTML(open(r.css("a").attribute("href").text))
+        #binding.pry
+        pedal[:seller_description] = seller_page.css("#postingbody").text.strip
         pedals << pedal
       end
     end
@@ -115,9 +119,7 @@ class Scraper
         user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
         formatted_user_search = search_format(user_input)
         formatted_post_title = search_format(p[:name])
-        #go thru p_t results and skip any that have used in title
-        #if you can get a result using the post title, get that info
-        #else try with user_input
+        #Scraper.search_name_blend(formatted_user_search, formatted_post_title)
         p_t_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_post_title}"
         p_t_html = open(p_t_url, 'User-Agent' => user_agent)
         p_t_doc = Nokogiri::HTML(p_t_html)
@@ -156,6 +158,9 @@ class Scraper
                   p[:gc_price] = p_t_doc.css(".topAlignedPrice").text.strip.split("\n")[0]
                   p[:gc_description] = p_t_doc.css(".description").text.strip
                end
+             elsif p_t_doc.css("#searchTips").length > 0
+               #binding.pry
+               #u_s_doc.css(".productTitle")[0].text.strip
              end
       end
     pedal_hash
