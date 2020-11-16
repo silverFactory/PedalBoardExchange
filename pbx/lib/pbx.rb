@@ -14,13 +14,17 @@ class PBX
     pedal_results = Scraper.scrape_search(input)
     pedals_with_extras = Scraper.gc_scrape(pedal_results, input)
     Pedal.create_from_collection(pedals_with_extras)
-    PBX.menu
+    PBX.listings
+    #PBX.menu(list_choice)
   end
 
-  def self.menu
+  def self.listings
     Pedal.all.each_with_index{|p, i| puts "#{i+1}- #{p.name}: listed for #{p.seller_price}"}
     puts "For more information about a pedal, please enter corresponding number:"
     ped_choice = gets.chomp.to_i
+    PBX.menu(ped_choice)
+  end
+  def self.menu(ped_choice)
     puts Pedal.all[ped_choice-1].name
     puts "What would you like to know?"
     puts "1 - Seller Description"
@@ -42,7 +46,7 @@ class PBX
       puts Pedal.all[p_c-1].gc_description
       PBX.end_menu(s_m_c, p_c)
     elsif s_m_c == 4
-      self.menu
+      self.listings
     else
       puts "Please enter a valid choice..."
     end
@@ -54,9 +58,9 @@ class PBX
     puts "3 - Exit program"
     end_menu = gets.chomp.to_i
     if end_menu == 1
-      PBX.sub_menu(s_m_c, p_c)
+      PBX.menu(p_c)
     elsif end_menu == 2
-      PBX.menu
+      PBX.listings
     elsif end_menu == 3
 
     end
