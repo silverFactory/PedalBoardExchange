@@ -8,14 +8,18 @@ require 'pry'
 # end
 class PBX
   def start_up
-    puts "Welcome to the PedalBoardExchange!!"
+    puts "Welcome to the New York PedalBoardExchange!!"
     puts "What are you searching for today?"
-    input = gets.chomp
-    pedal_results = Scraper.scrape_search(input)
-    pedals_with_extras = Scraper.gc_scrape(pedal_results, input)
+    pedal = gets.chomp
+    puts "This may take a moment..."
+    pedal_results = Scraper.scrape_search(pedal)
+    pedals_with_extras = Scraper.gc_scrape(pedal_results, pedal)
     Pedal.create_from_collection(pedals_with_extras)
-    PBX.listings
-    #PBX.menu(list_choice)
+    if Pedal.all.length > 0
+      PBX.listings
+    else
+      puts "No luck today, sorry!"
+    end
   end
 
   def self.listings
@@ -52,7 +56,7 @@ class PBX
     end
   end
   def self.end_menu(s_m_c, p_c)
-    puts "What would you like to do next?"
+    puts "\nWhat would you like to do next?"
     puts "1 - Back to info about this pedal"
     puts "2 - Back to list of all pedals"
     puts "3 - Exit program"
@@ -62,7 +66,7 @@ class PBX
     elsif end_menu == 2
       PBX.listings
     elsif end_menu == 3
-
+      puts "Thanks for visiting PBX"
     end
   end
 end
