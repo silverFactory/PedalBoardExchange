@@ -1,10 +1,6 @@
 require 'open-uri'
 require 'nokogiri'
 require 'pry'
-#require_relative 'pedal.rb'
-#Craigslist scrape params
-    #post title: results.css("h3").text
-    #Price:     results.css(".result-meta .result-price").text
 class Scraper
   MAJOR_CITIES = ["washingtondc", "baltimore", "philadelphia", "atlanta", "minneapolis", "portland", "cleveland", "boston", "denver", "austin", "losangeles"]
 
