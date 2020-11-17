@@ -14,6 +14,22 @@ class Scraper
         pedal[:seller_price] = r.css(".result-meta .result-price").text.strip
         seller_page = Nokogiri::HTML(open(r.css("a").attribute("href").text))
         pedal[:seller_description] = seller_page.css("#postingbody").text.strip
+        #binding.pry
+        text = seller_page.css(".attrgroup").text.strip
+        boxes = text.split("\n")
+        pedal[:manufacturer] = nil
+        pedal[:model] = nil
+        pedal[:condition] = nil
+        boxes.each do |str|
+          if str.include?("make / manufacturer:")
+            pedal[:manufacturer] = str.split("make / manufacturer:")[1]
+          elsif str.include?("model name / number:")
+            pedal[:model] = str.split("model name / number:")[1]
+          elsif str.include?("condition:")
+            pedal[:condition] = str.split("condition:")[1]
+          end
+        end
+        binding.pry
         pedals << pedal
       end
     end
