@@ -8,7 +8,7 @@ class Scraper
     results = doc.css(".result-row")
     pedals = []
     results.each do |r|
-      if Scraper.title_check?(r.css("h3").text, pedal_type)
+      if title_check?(r.css("h3").text, pedal_type)
         pedal = {}
         pedal[:name] = r.css("h3").text.strip
         pedal[:seller_price] = r.css(".result-meta .result-price").text.strip
@@ -29,7 +29,7 @@ class Scraper
             pedal[:condition] = str.split("condition:")[1]
           end
         end
-        binding.pry
+      #  binding.pry
         pedals << pedal
       end
     end
@@ -55,38 +55,45 @@ class Scraper
     end
   end
 
-  def self.gc_scrape(pedal_hash, user_input)
+  def self.gc_scrape(pedal_hash)
 
     pedal_hash.each do |p|
         user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
-        formatted_user_search = search_format(user_input)
-        formatted_post_title = search_format(p[:name])
-        p_t_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_post_title}"
-        p_t_html = open(p_t_url, 'User-Agent' => user_agent)
-        p_t_doc = Nokogiri::HTML(p_t_html)
-        u_s_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_user_search}"
-        u_s_html = open(u_s_url, 'User-Agent' => user_agent)
-        u_s_doc = Nokogiri::HTML(u_s_html)
-            if p_t_doc.css("#searchTips").length == 0
-              if p_t_doc.css(".product-container").length > 0
-                p_t_doc.css(".product-container").each do |pedal|
-                    if !Scraper.used?(pedal.css(".productTitle").text.strip) && p[:gc_name] == nil
-                      p[:gc_name] = pedal.css(".productTitle").text.strip
-                      p[:gc_price] = Scraper.gc_price_parse(pedal.css(".productPrice").text)
-                      info_array = Scraper.gc_next_level(pedal.css(".productTitle a").attribute('href').text)
-                      p[:gc_description] = info_array[1]
-                    end
-                  end
-                else
-                  p[:gc_name] = p_t_doc.css(".titleWrap").text.strip
-                  p[:gc_price] = p_t_doc.css(".topAlignedPrice").text.strip.split("\n")[0]
-                  p[:gc_description] = p_t_doc.css(".description").text.strip
-               end
-             elsif p_t_doc.css("#searchTips").length > 0
-             end
+      #  binding.pry
+        if p[:manufacturer] != nil && p[:model] != nil
+          formatted_manu_model = search_format(p[:manufacturer]+" "+p[:model])
+          man_mod_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_manu_model}"
+          man_mod_html = open(man_mod_url, 'User-Agent' => user_agent)
+          man_mod_doc = Nokogiri::HTML(man_mod_html)
+          add_gc_info(man_mod_doc, p)
+         else
+          formatted_post_title = search_format(p[:name])
+          p_t_url = "https://www.guitarcenter.com/search?typeAheadSuggestion=true&typeAheadRedirect=true&fromRecentHistory=false&Ntt=#{formatted_post_title}"
+          p_t_html = open(p_t_url, 'User-Agent' => user_agent)
+          p_t_doc = Nokogiri::HTML(p_t_html)
+          add_gc_info(p_t_doc, p)
+         end
       end
     pedal_hash
 end
+  def self.add_gc_info(pedal_doc, p)
+    if pedal_doc.css("#searchTips").length == 0
+      if pedal_doc.css(".product-container").length > 0
+        pedal_doc.css(".product-container").each do |pedal|
+            if !used?(pedal.css(".productTitle").text.strip) && p[:gc_name] == nil
+              p[:gc_name] = pedal.css(".productTitle").text.strip
+              p[:gc_price] = gc_price_parse(pedal.css(".productPrice").text)
+              info_array = gc_next_level(pedal.css(".productTitle a").attribute('href').text)
+              p[:gc_description] = info_array[1]
+            end
+          end
+        else
+          p[:gc_name] = pedal_doc.css(".titleWrap").text.strip
+          p[:gc_price] = pedal_doc.css(".topAlignedPrice").text.strip.split("\n")[0]
+          p[:gc_description] = pedal_doc.css(".description").text.strip
+       end
+     end
+  end
   def self.gc_next_level(url_end)
     user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.183 Safari/537.36"
     url = "https://www.guitarcenter.com#{url_end}"

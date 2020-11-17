@@ -13,7 +13,7 @@ class PBX
     pedal = gets.chomp
     puts "This may take a moment..."
     pedal_results = Scraper.scrape_search(pedal)
-    pedals_with_extras = Scraper.gc_scrape(pedal_results, pedal)
+    pedals_with_extras = Scraper.gc_scrape(pedal_results)
     Pedal.create_from_collection(pedals_with_extras)
     if Pedal.all.length > 0
       PBX.listings
