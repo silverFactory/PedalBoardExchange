@@ -1,8 +1,9 @@
-# Pbx
+# PedalBoardExchange
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/pbx`. To experiment with that code, run `bin/console` for an interactive prompt.
+This app is designed to make buying and selling guitar effects pedals on Craigslist easier. The command line interface asks the user to search for a specific pedal, finds relevant posts on Craigslist, then uses the information from those posts to search Guitar Center's website to get the new price as well as the manufacturer's description.
 
-TODO: Delete this and the text above, and describe your gem
+[Issues]
+-currently this app is set up to search specifically the New York area. Because Craigslist breaks up regions of the country differently, usually metropolitan areas have their own Craigslist, but then suburban and rural areas it's a bit all over the place in terms of naming conventions. Instead of asking the user to input a zip code I just let the default search area be mine (New York). To search a different area the user would just need to go to the Craigslist themselves to find the proper region to search under, and use that region name as an optional argument for #scrape_search in pbx.rb on line 15
 
 ## Installation
 
