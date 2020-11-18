@@ -76,7 +76,7 @@ class PBX
       menu(p_c)
     elsif end_menu == 2
       listings
-    else 
+    else
       puts "Thanks for visiting PBX"
     end
   end
